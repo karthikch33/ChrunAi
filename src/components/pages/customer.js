@@ -28,8 +28,9 @@ export default function CustomerDetailPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`https://test-964804772271.europe-west1.run.app/customer-insights/${customerNo}/`)
+    fetch(`https://test-964804772271.europe-west1.run.app/customer-insights/${customerNo}`)
       .then((res) => {
+        console.log(res);
         if (!res.ok) throw new Error("Failed to fetch customer data");
         return res.json();
       })
