@@ -24,6 +24,8 @@ export default function CustomerDetailPage() {
   const [error, setError] = useState(null);
   const [customer, setCustomer] = useState(null);
 
+  console.log(customer)
+
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -143,8 +145,12 @@ export default function CustomerDetailPage() {
         </Card>
       </div>
 
-      {/* Recommendations */}
-      <Card title="Actionable Recommendations">
+      {/* Observation */}
+      <Card title="Observations">
+        <p>{customer.observation}</p>
+      </Card>
+
+      <Card title="Recommendations">
         <p>{customer.recommendation}</p>
       </Card>
 
