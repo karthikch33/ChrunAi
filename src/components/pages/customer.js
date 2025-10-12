@@ -24,7 +24,7 @@ export default function CustomerDetailPage() {
   const [error, setError] = useState(null);
   const [customer, setCustomer] = useState(null);
 
-  console.log(customer)
+  // console.log(customer)
 
   useEffect(() => {
     setLoading(true);
