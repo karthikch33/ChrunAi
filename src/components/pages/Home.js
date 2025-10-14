@@ -46,7 +46,7 @@ const percentageLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }
 const formatRevenue = (val) => {
   const str = val.toFixed(2);
   const [intPart, decimalPart] = str.split(".");
-  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, "_");
+  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return `${formatted}.${decimalPart}`;
 };
 
@@ -84,12 +84,14 @@ export default function Home() {
   // Pie chart data based on API
   const chartData = useMemo(() => {
     if (!data.length) return [];
-    const clusterMap = { high_revenue: 0, mixed_revenue: 0, low_revenue: 0 };
+    const clusterMap = { high_revenue: 0, mixed_revenue: 0, low_revenue: 0 };    
     data.forEach((c) => {
       const cluster = c.cluster_name.toLowerCase();
       if (clusterMap[cluster] !== undefined) clusterMap[cluster] += 1;
     });
-    return Object.entries(clusterMap).map(([name, value]) => ({ name, value }));
+
+    const temp = Object.entries(clusterMap).map(([name, value]) => ({ name, value }));    
+    return temp;
   }, [data]);
 
   // Pie chart slice ranges
@@ -121,7 +123,7 @@ export default function Home() {
         ),
       },
       {
-        title: "Total Revenue",
+        title: "Total Revenue(In Dollars)",
         dataIndex: "total_revenue",
         key: "total_revenue",
         sorter: (a, b) => a.total_revenue - b.total_revenue,

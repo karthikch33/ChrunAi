@@ -146,13 +146,7 @@ export default function CustomerDetailPage() {
       </div>
 
       {/* Observation */}
-      <Card title="Observations">
-        <p>{customer.observation}</p>
-      </Card>
-
-      <Card title="Recommendations">
-        <p>{customer.recommendation}</p>
-      </Card>
+      
 
       {/* Product combination and best price */}
       {customer.product_combination && (
@@ -170,6 +164,14 @@ export default function CustomerDetailPage() {
           ))}
         </Card>
       )}
+
+<Card title="Observations">
+        <p>{customer.observation}</p>
+      </Card>
+
+      <Card title="Recommendations">
+        <p>{customer.recommendation}</p>
+      </Card>
     </div>
   );
 }
