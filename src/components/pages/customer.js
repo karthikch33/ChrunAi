@@ -30,7 +30,7 @@ export default function CustomerDetailPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`https://test-964804772271.europe-west1.run.app/customer-insights/${customerNo}`)
+    fetch(`https://churn-poc.onrender.com/customer-insights/${customerNo}`)
       .then((res) => {
         console.log(res);
         if (!res.ok) throw new Error("Failed to fetch customer data");

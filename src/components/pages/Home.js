@@ -68,7 +68,7 @@ export default function Home() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch("https://test-964804772271.europe-west1.run.app/clustered-data");
+        const res = await fetch("https://churn-poc.onrender.com/clustered-data");
 
         const json = await res.json();
         setData(json); // Expecting array of customers
