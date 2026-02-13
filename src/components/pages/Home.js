@@ -190,7 +190,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 4 }}>
+      <Box sx={{ p: 4,  }}>
         <Typography variant="h5">Loading data...</Typography>
       </Box>
     );
@@ -198,100 +198,108 @@ export default function Home() {
 
   return (
     <Box sx={{ p: 4, backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
-        Customer Dashboard
-      </Typography>
-
-      {/* KPI Cards */}
-      <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap", mb: 4 }}>
-        <Card sx={{ flex: 1, minWidth: 260, borderRadius: "16px", boxShadow: 3 }}>
-          <CardContent>
-            <Typography variant="subtitle1" color="textSecondary">
-              Total Customers
-            </Typography>
-            <Typography variant="h5" fontWeight="bold">
-              {data.length}
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ flex: 1, minWidth: 260, borderRadius: "16px", boxShadow: 3 }}>
-          <CardContent>
-            <Typography variant="subtitle1" color="textSecondary">
-              Total Revenue
-            </Typography>
-            <Typography variant="h5" fontWeight="bold">
-              {formatRevenue(data.reduce((acc, c) => acc + c.total_revenue, 0))}
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ flex: 1, minWidth: 260, borderRadius: "16px", boxShadow: 3 }}>
-          <CardContent>
-            <Typography variant="subtitle1" color="textSecondary">
-              Active Cluster Filter
-            </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="h5" fontWeight="bold">
-                {activeCluster}
+      <Typography variant="h5" fontWeight="bold" mb={3}>Customer Dashboard</Typography>
+    <Card className="p-3">
+      <Box sx={{ display: "flex", gap: 3, boxShadow: 'box-shadow: 0px 1px 3px var(--sds-size-depth-0) rgba(0, 0, 0, 0.1)'}}>
+        {/* Left Section - KPI Cards and Table (4/12) */}
+        <Box sx={{ flex: "0 0 24%", display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* KPI Cards */}
+            <Card sx={{ borderRadius: "16px", boxShadow:0, border:'0.8px solid rgba(229, 231, 235, 1)' }}>
+            <CardContent>
+                <Typography variant="subtitle1" color="textSecondary" sx={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: '16px', fontWeight: '700', color: 'background: rgba(74, 85, 101, 1);' }}>
+                  Total Customers <img src="/customer.png" alt="total-customers" />
               </Typography>
-              {activeCluster !== "None" && (
-                <Chip
-                  label="Clear"
-                  size="small"
-                  color="primary"
-                  onClick={() => {
-                    setActiveCluster("None");
-                    setSelectedIndex(-1);
-                    setActiveSlice(null);
-                  }}
-                />
-              )}
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
+              <Typography variant="h5" fontWeight="bold">
+                {data.length}
+              </Typography>
+            </CardContent>
+          </Card>
 
-      {/* PieChart */}
-      <Box mt={2} sx={{ width: "100%", height: 360, bgcolor: "white", borderRadius: 2, boxShadow: 2 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData.filter((d) => !hiddenNames.has(d.name))}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={110}
-              dataKey="value"
-              nameKey="name"
-              activeIndex={hoverIndex >= 0 ? hoverIndex : selectedIndex}
-              activeShape={renderActiveShape}
-              label={percentageLabel}
-              onClick={handlePieClickTop}
-              onMouseEnter={(_, idx) => setHoverIndex(idx)}
-              onMouseLeave={() => setHoverIndex(-1)}
-            >
-              {chartData.map((entry, index) => (
-                <Cell
-                  key={`cell-${entry.name}`}
-                  fill={chartColors[index % chartColors.length]}
-                  style={{ cursor: "pointer", transition: "opacity .2s ease" }}
-                  opacity={selectedIndex >= 0 && selectedIndex !== index ? 0.6 : 1}
-                />
-              ))}
-            </Pie>
-            <Tooltip formatter={(value) => [value]} />
-            <Legend
-              verticalAlign="bottom"
-              height={36}
-              onClick={handleLegendClickTop}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </Box>
+          <Card sx={{ borderRadius: "10px", boxShadow:0, border:'0.8px solid rgba(229, 231, 235, 1)' }}>
+            <CardContent>
+                <Typography variant="subtitle1" color="textSecondary" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                Total Revenue <img src="/revanue.png" alt="total revanue"/>
+              </Typography>
+              <Typography variant="h5" fontWeight="bold">
+                {formatRevenue(data.reduce((acc, c) => acc + c.total_revenue, 0))}
+              </Typography>
+            </CardContent>
+          </Card>
 
+            <Card sx={{ borderRadius: "10px", boxShadow: 0, border: '0.8px solid rgba(229, 231, 235, 1)' }}>
+            <CardContent>
+                <Typography variant="subtitle1" color="textSecondary" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  Active Cluster Filter  <img src="/revanue.png" alt="total revanue" />
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="h5" fontWeight="bold">
+                  {activeCluster}
+                </Typography>
+                {activeCluster !== "None" && (
+                  <Chip
+                    label="Clear"
+                    size="small"
+                    color="primary"
+                    onClick={() => {
+                      setActiveCluster("None");
+                      setSelectedIndex(-1);
+                      setActiveSlice(null);
+                    }}
+                  />
+                )}
+              </Stack>
+            </CardContent>
+          </Card>
+
+      
+        </Box>
+
+        {/* Right Section - Chart (8/12) */}
+        <Box sx={{ flex: 1 }}>
+            <Box sx={{
+              height: 360, bgcolor: "rgba(249, 250, 251, 1)",  borderRadius: 2, boxShadow: 0, }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData.filter((d) => !hiddenNames.has(d.name))}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={110}
+                  dataKey="value"
+                  nameKey="name"
+                  activeIndex={hoverIndex >= 0 ? hoverIndex : selectedIndex}
+                  activeShape={renderActiveShape}
+                  label={percentageLabel}
+                  onClick={handlePieClickTop}
+                  onMouseEnter={(_, idx) => setHoverIndex(idx)}
+                  onMouseLeave={() => setHoverIndex(-1)}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${entry.name}`}
+                      fill={chartColors[index % chartColors.length]}
+                      style={{ cursor: "pointer", transition: "opacity .2s ease" }}
+                      opacity={selectedIndex >= 0 && selectedIndex !== index ? 0.6 : 1}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => [value]} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  onClick={handleLegendClickTop}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </Box>
+        </Box>
+      </Box>
+      </Card>
       {/* Customers Table */}
-      <Box sx={{ mt: 4 }}>
+      <Card className="p-3 mt-3">
+      <Box>
         <Typography variant="h5" sx={{ mb: 2 }}>
           Customers Table
         </Typography>
@@ -303,6 +311,7 @@ export default function Home() {
           onChange={handleTableChange}
         />
       </Box>
+    </Card>
     </Box>
   );
 }
