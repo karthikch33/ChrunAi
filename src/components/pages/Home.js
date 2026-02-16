@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Box, Card, CardContent, Typography, Chip, Stack } from "@mui/material";
-import { Table, Tag } from "antd";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Table } from "antd";
 import {
   PieChart,
   Pie,
@@ -8,310 +8,613 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Sector,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { Sector } from "recharts";
 
-const chartColors = ["#1976d2", "#42a5f5", "#ef5350"];
-
-const renderActiveShape = (props) => {
-  const { cx, cy, innerRadius = 60, outerRadius, startAngle, endAngle, fill } = props;
-  return (
-    <Sector
-      cx={cx}
-      cy={cy}
-      innerRadius={innerRadius}
-      outerRadius={outerRadius + 8}
-      startAngle={startAngle}
-      endAngle={endAngle}
-      fill={fill}
-      stroke="#1e293b"
-      strokeWidth={1}
-    />
-  );
-};
-
-const percentageLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-  const RADIAN = Math.PI / 180;
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  return (
-    <text x={x} y={y} fill="#0f172a" textAnchor="middle" dominantBaseline="central" fontSize={12}>
-      {(percent * 100).toFixed(0)}%
-    </text>
-  );
-};
+/* -------------------- HELPERS -------------------- */
 
 const formatRevenue = (val) => {
-  const str = val.toFixed(2);
+  if (!val) return "0.00";
+  const str = Number(val).toFixed(2);
   const [intPart, decimalPart] = str.split(".");
   const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return `${formatted}.${decimalPart}`;
 };
 
+const clusterColors = {
+  high_revenue: "#174a8b",
+  mixed_revenue: "#3e8ebf",
+  low_revenue: "#f2993a",
+};
+
+/* -------------------- COMPONENT -------------------- */
+
 export default function Home() {
   const navigate = useNavigate();
 
-  // App state
+  /* ---------- STATE ---------- */
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCluster, setActiveCluster] = useState("None");
-  const [hoverIndex, setHoverIndex] = useState(-1);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [hiddenNames, setHiddenNames] = useState(new Set());
-  const [activeSlice, setActiveSlice] = useState(null);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 20 });
+  const [activeCluster, setActiveCluster] = useState(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
-  // Fetch data from API
+  /* ---------- FETCH DATA ---------- */
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch("https://churn-poc.onrender.com/clustered-data");
-
+        const res = await fetch(
+          "https://churn-poc.onrender.com/clustered-data"
+        );
         const json = await res.json();
-        setData(json); // Expecting array of customers
+        setData(json);
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
-  // Pie chart data based on API
-  const chartData = useMemo(() => {
-    if (!data.length) return [];
-    const clusterMap = { high_revenue: 0, mixed_revenue: 0, low_revenue: 0 };    
-    data.forEach((c) => {
-      const cluster = c.cluster_name.toLowerCase();
-      if (clusterMap[cluster] !== undefined) clusterMap[cluster] += 1;
-    });
+  /* ---------- KPI CALCULATIONS ---------- */
 
-    const temp = Object.entries(clusterMap).map(([name, value]) => ({ name, value }));    
-    return temp;
+  const totalRevenue = useMemo(() => {
+    return data.reduce((acc, c) => acc + Number(c.total_revenue || 0), 0);
   }, [data]);
 
-  // Pie chart slice ranges
-  const sliceToRange = {
-    high_revenue: [0, Infinity],
-    mixed_revenue: [0, Infinity],
-    low_revenue: [0, Infinity],
-  };
+  const chartData = useMemo(() => {
+    if (!data.length) return [];
 
-  const topTotal = useMemo(() => chartData.reduce((s, d) => s + d.value, 0), [chartData]);
+    const clusterMap = {
+      high_revenue: 0,
+      mixed_revenue: 0,
+      low_revenue: 0,
+    };
 
-  // Table columns
-  const columns = useMemo(
-    () => [
-      { title: "Customer No", dataIndex: "customer", key: "customer" },
-      { title: "Company Code", dataIndex: "company_code", key: "company_code" },
-      {
-        title: "Cluster",
-        dataIndex: "cluster_name",
-        key: "cluster_name",
-        filters: [
-          { text: "High Revenue", value: "high_revenue" },
-          { text: "Mixed Revenue", value: "mixed_revenue" },
-          { text: "Low Revenue", value: "low_revenue" },
-        ],
-        onFilter: (v, r) => r.cluster_name.toLowerCase() === v,
-        render: (v) => (
-          <Tag color={v === "high_revenue" ? "blue" : v === "low_revenue" ? "red" : "gold"}>{v}</Tag>
-        ),
-      },
-      {
-        title: "Total Revenue(In Dollars)",
-        dataIndex: "total_revenue",
-        key: "total_revenue",
-        sorter: (a, b) => a.total_revenue - b.total_revenue,
-        render: (val) => formatRevenue(val),
-      },
-      {
-        title: "Revenue Rank In Cluster",
-        dataIndex: "revenue_rank_in_cluster",
-        key: "revenue_rank_in_cluster",
-        sorter: (a, b) => a.revenue_rank_in_cluster - b.revenue_rank_in_cluster,
-      },
-      {
-        title: "Purchasing Frequency",
-        dataIndex: "purchasing_frequency",
-        key: "purchasing_frequency",
-        sorter: (a, b) => a.purchasing_frequency - b.purchasing_frequency,
-      },
-      {
-        title: "Detailed Analysis",
-        key: "action",
-        render: (_, record) => <a onClick={() => navigate(`/customers/${record.customer}`)}>Open</a>,
-      },
-    ],
-    [navigate]
-  );
+    data.forEach((c) => {
+      const cluster = c.cluster_name?.toLowerCase();
+      if (clusterMap[cluster] !== undefined) {
+        clusterMap[cluster] += 1;
+      }
+    });
+
+    return Object.entries(clusterMap).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [data]);
+
+  /* ---------- FILTERED TABLE DATA ---------- */
 
   const filteredRows = useMemo(() => {
-    if (!activeSlice) return data;
-    const [min, max] = activeSlice.range;
+    if (!activeCluster) return data;
+
     return data.filter(
-      (c) => c.cluster_name.toLowerCase() === activeSlice.name && c.total_revenue >= min && c.total_revenue < max
+      (c) => c.cluster_name?.toLowerCase() === activeCluster
     );
-  }, [data, activeSlice]);
+  }, [data, activeCluster]);
 
-  const handleTableChange = useCallback((p) => setPagination({ current: p.current, pageSize: p.pageSize }), []);
+  const handlePieClick = (entry) => {
+    const name = entry?.name;
+    setActiveCluster((prev) => (prev === name ? null : name));
+    setPagination((pg) => ({ ...pg, current: 1 }));
+  };
 
-  const handlePieClickTop = useCallback(
-    (entry, index) => {
-      const name = entry?.name;
-      setActiveCluster(name ?? "None");
-      setSelectedIndex(index);
-      setPagination((pg) => ({ ...pg, current: 1 }));
-      setActiveSlice((prev) => {
-        if (prev && prev.name === name) return null;
-        const range = sliceToRange[name] ?? [0, Infinity];
-        return { name, range };
-      });
-    },
-    []
+  const handleTableChange = useCallback((p) => {
+    setPagination({ current: p.current, pageSize: p.pageSize });
+  }, []);
+
+  const renderActiveShape = (props) => {
+  const {
+    cx,
+    cy,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    fill,
+  } = props;
+
+  return (
+    <Sector
+      cx={cx}
+      cy={cy}
+      innerRadius={innerRadius}
+      outerRadius={outerRadius + 10} // pop-out
+      startAngle={startAngle}
+      endAngle={endAngle}
+      fill={fill}
+    />
   );
+};
 
-  const handleLegendClickTop = useCallback(
-    (e) => {
-      const name = e?.value;
-      setHiddenNames((prev) => {
-        const next = new Set(prev);
-        if (next.has(name)) next.delete(name);
-        else next.add(name);
-        return next;
-      });
-    },
-    []
+const renderPercentLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+}) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="#111827"
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={12}
+      fontWeight={600}
+    >
+      {(percent * 100).toFixed(0)}%
+    </text>
   );
+};
+
+
+  /* ---------- TABLE COLUMNS ---------- */
+
+  const columns = [
+    { title: "Customer No", dataIndex: "customer" },
+    { title: "Company Code", dataIndex: "company_code" },
+    {
+      title: "Cluster",
+      dataIndex: "cluster_name",
+      render: (value) => {
+        const v = value?.toLowerCase();
+        const bg =
+          v === "high_revenue"
+            ? "#e3f2fd"
+            : v === "mixed_revenue"
+            ? "#e1f5fe"
+            : "#fff3e0";
+
+        const color =
+          v === "high_revenue"
+            ? "#1565c0"
+            : v === "mixed_revenue"
+            ? "#0277bd"
+            : "#ef6c00";
+
+        return (
+          <span
+            style={{
+              backgroundColor: bg,
+              color: color,
+              padding: "4px 10px",
+              borderRadius: "20px",
+              fontSize: "12px",
+              fontWeight: 500,
+              textTransform: "capitalize",
+            }}
+          >
+            {v?.replace("_", " ")}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Total Revenue (USD)",
+      dataIndex: "total_revenue",
+      render: (v) => `$${formatRevenue(v)}`,
+    },
+    {
+      title: "Revenue Rank",
+      dataIndex: "revenue_rank_in_cluster",
+    },
+    {
+      title: "Action",
+      render: (_, record) => (
+        <a
+          onClick={() => navigate(`/customers/${record.customer}`)}
+          style={{ textDecoration: "underline", cursor: "pointer" }}
+        >
+          Detailed Analysis
+        </a>
+      ),
+    },
+  ];
+
+  /* ---------- LOADING ---------- */
 
   if (loading) {
     return (
-      <Box sx={{ p: 4,  }}>
-        <Typography variant="h5">Loading data...</Typography>
+      <Box sx={{ p: 4 }}>
+        <Typography variant="h6">Loading data...</Typography>
       </Box>
     );
   }
 
+  /* ---------- UI ---------- */
+
   return (
-    <Box sx={{ p: 4, backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
-      <Typography variant="h5" fontWeight="bold" mb={3}>Customer Dashboard</Typography>
-    <Card className="p-3">
-      <Box sx={{ display: "flex", gap: 3, boxShadow: 'box-shadow: 0px 1px 3px var(--sds-size-depth-0) rgba(0, 0, 0, 0.1)'}}>
-        {/* Left Section - KPI Cards and Table (4/12) */}
-        <Box sx={{ flex: "0 0 24%", display: "flex", flexDirection: "column", gap: 2 }}>
-          {/* KPI Cards */}
-            <Card sx={{ borderRadius: "16px", boxShadow:0, border:'0.8px solid rgba(229, 231, 235, 1)' }}>
-            <CardContent>
-                <Typography variant="subtitle1" color="textSecondary" sx={{
-                  display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: '16px', fontWeight: '700', color: 'background: rgba(74, 85, 101, 1);' }}>
-                  Total Customers <img src="/customer.png" alt="total-customers" />
-              </Typography>
-              <Typography variant="h5" fontWeight="bold">
-                {data.length}
-              </Typography>
-            </CardContent>
-          </Card>
+    <>
+    <Box
+  sx={{
+    height: "64px",
+    backgroundColor: "#ffffff",
+    borderBottom: "1px solid #e5e7eb",
+    px: 4,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  }}
+>
+  {/* LEFT: YASH LOGO */}
+  <Box sx={{ display: "flex", alignItems: "center" }}>
+    <img
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQz6s3WZNZAaKEXsBVRXuMDagabISvp0gqDRw&s"
+      alt="YASH Technologies"
+      height={32}
+    />
+  </Box>
 
-          <Card sx={{ borderRadius: "10px", boxShadow:0, border:'0.8px solid rgba(229, 231, 235, 1)' }}>
-            <CardContent>
-                <Typography variant="subtitle1" color="textSecondary" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                Total Revenue <img src="/revanue.png" alt="total revanue"/>
-              </Typography>
-              <Typography variant="h5" fontWeight="bold">
-                {formatRevenue(data.reduce((acc, c) => acc + c.total_revenue, 0))}
-              </Typography>
-            </CardContent>
-          </Card>
+  {/* RIGHT: SETTINGS ICON */}
+</Box>
 
-            <Card sx={{ borderRadius: "10px", boxShadow: 0, border: '0.8px solid rgba(229, 231, 235, 1)' }}>
-            <CardContent>
-                <Typography variant="subtitle1" color="textSecondary" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  Active Cluster Filter  <img src="/revanue.png" alt="total revanue" />
-              </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="h5" fontWeight="bold">
-                  {activeCluster}
-                </Typography>
-                {activeCluster !== "None" && (
-                  <Chip
-                    label="Clear"
-                    size="small"
-                    color="primary"
-                    onClick={() => {
-                      setActiveCluster("None");
-                      setSelectedIndex(-1);
-                      setActiveSlice(null);
-                    }}
-                  />
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
+    <Box sx={{ p: 4, backgroundColor: "#f3f4f6", minHeight: "100vh" }}>
+      <Typography variant="h5" fontWeight="bold" mb={3}>
+        Customer Dashboard
+      </Typography>
 
-      
-        </Box>
+      {/* TOP SECTION */}
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Box sx={{ display: "flex", gap: 3 }}>
 
-        {/* Right Section - Chart (8/12) */}
-        <Box sx={{ flex: 1 }}>
-            <Box sx={{
-              height: 360, bgcolor: "rgba(249, 250, 251, 1)",  borderRadius: 2, boxShadow: 0, }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData.filter((d) => !hiddenNames.has(d.name))}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={110}
-                  dataKey="value"
-                  nameKey="name"
-                  activeIndex={hoverIndex >= 0 ? hoverIndex : selectedIndex}
-                  activeShape={renderActiveShape}
-                  label={percentageLabel}
-                  onClick={handlePieClickTop}
-                  onMouseEnter={(_, idx) => setHoverIndex(idx)}
-                  onMouseLeave={() => setHoverIndex(-1)}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${entry.name}`}
-                      fill={chartColors[index % chartColors.length]}
-                      style={{ cursor: "pointer", transition: "opacity .2s ease" }}
-                      opacity={selectedIndex >= 0 && selectedIndex !== index ? 0.6 : 1}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [value]} />
-                <Legend
-                  verticalAlign="bottom"
-                  height={36}
-                  onClick={handleLegendClickTop}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </Box>
-        </Box>
+          {/* LEFT KPI SECTION */}
+          {/* KPI SECTION */}
+<Box
+  sx={{
+    flex: "0 0 25%",
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  }}
+>
+  {/* TOTAL CUSTOMERS */}
+  <Card
+    sx={{
+      borderRadius: "14px",
+      border: "1px solid #e5e7eb",
+      backgroundColor: "#f9fafb",
+      boxShadow: "none",
+    }}
+  >
+    <CardContent sx={{ p: "18px !important" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography
+          sx={{
+            fontSize: "14px",
+            fontWeight: 500,
+            color: "#6b7280",
+          }}
+        >
+          Total Customers
+        </Typography>
+        <img src="/customer.png" alt="customers" width={20} />
       </Box>
+
+      <Typography
+        sx={{
+          fontSize: "24px",
+          fontWeight: 700,
+          color: "#111827",
+          mt: 1,
+        }}
+      >
+        {data.length}
+      </Typography>
+
+      {/* <Typography
+        sx={{
+          fontSize: "12px",
+          color: "#16a34a",
+          mt: 0.5,
+        }}
+      >
+        ↑ 8% this month
+      </Typography> */}
+    </CardContent>
+  </Card>
+
+  {/* TOTAL REVENUE */}
+  <Card
+    sx={{
+      borderRadius: "14px",
+      border: "1px solid #e5e7eb",
+      backgroundColor: "#f9fafb",
+      boxShadow: "none",
+    }}
+  >
+    <CardContent sx={{ p: "18px !important" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography
+          sx={{
+            fontSize: "14px",
+            fontWeight: 500,
+            color: "#6b7280",
+          }}
+        >
+          Total Revenue
+        </Typography>
+        <img src="/revanue.png" alt="revenue" width={20} />
+      </Box>
+
+      <Typography
+        sx={{
+          fontSize: "24px",
+          fontWeight: 700,
+          color: "#111827",
+          mt: 1,
+        }}
+      >
+        ${formatRevenue(totalRevenue)}
+      </Typography>
+
+      {/* <Typography
+        sx={{
+          fontSize: "12px",
+          color: "#16a34a",
+          mt: 0.5,
+        }}
+      >
+        ↑ 12% this quarter
+      </Typography> */}
+    </CardContent>
+  </Card>
+
+  {/* ACTIVE FILTER */}
+  <Card
+    sx={{
+      borderRadius: "14px",
+      border: "1px solid #e5e7eb",
+      backgroundColor: "#f9fafb",
+      boxShadow: "none",
+    }}
+  >
+    <CardContent sx={{ p: "18px !important" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography
+          sx={{
+            fontSize: "14px",
+            fontWeight: 500,
+            color: "#6b7280",
+          }}
+        >
+          Active Cluster
+        </Typography>
+        <img src="/revanue.png" alt="revenue" width={20} />
+      </Box>
+
+      <Typography
+        sx={{
+          fontSize: "20px",
+          fontWeight: 700,
+          color: "#111827",
+          mt: 1,
+        }}
+      >
+        {activeCluster
+          ? activeCluster.replace("_", " ")
+          : "None"}
+      </Typography>
+
+      {activeCluster && (
+        <Typography
+          onClick={() => setActiveCluster(null)}
+          sx={{
+            fontSize: "12px",
+            color: "#2563eb",
+            mt: 0.5,
+            cursor: "pointer",
+          }}
+        >
+          Clear filter
+        </Typography>
+      )}
+    </CardContent>
+  </Card>
+</Box>
+
+
+          {/* RIGHT PIE SECTION */}
+          <Box
+  sx={{
+    flex: 1,
+    background: "#ffffff",
+    borderRadius: "16px",
+    border: "1px solid #e5e7eb",
+    p: 3,
+    display: "flex",
+    gap: 4,
+    alignItems: "center",
+  }}
+>
+  {/* LEFT - DONUT */}
+  <Box sx={{ flex: 1 }}>
+    <Typography
+      sx={{
+        fontSize: "16px",
+        fontWeight: 600,
+        color: "#111827",
+        mb: 2,
+      }}
+    >
+      Revenue Distribution By Cluster
+    </Typography>
+
+    <ResponsiveContainer width="100%" height={280}>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+  <ResponsiveContainer width="100%" height={260}>
+    <PieChart>
+      <Pie
+        data={chartData}
+        dataKey="value"
+        nameKey="name"
+        cx="50%"
+        cy="50%"
+        outerRadius={110}
+        paddingAngle={3}
+        activeIndex={
+          chartData.findIndex((d) => d.name === activeCluster)
+        }
+        activeShape={renderActiveShape}
+        label={renderPercentLabel}
+        onClick={handlePieClick}
+      >
+        {chartData.map((entry, index) => (
+          <Cell
+            key={index}
+            fill={clusterColors[entry.name]}
+            style={{ cursor: "pointer" }}
+          />
+        ))}
+      </Pie>
+      <Tooltip />
+    </PieChart>
+  </ResponsiveContainer>
+
+  {/* CUSTOM LEGEND */}
+  <Box
+    sx={{
+      display: "flex",
+      gap: 3,
+      mt: 2,
+      alignItems: "center",
+    }}
+  >
+    {chartData.map((item) => {
+      const isActive = activeCluster === item.name;
+
+      return (
+        <Box
+          key={item.name}
+          onClick={() =>
+            setActiveCluster(isActive ? null : item.name)
+          }
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            cursor: "pointer",
+            opacity: activeCluster && !isActive ? 0.4 : 1,
+            transition: "0.2s",
+          }}
+        >
+          <Box
+            sx={{
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              backgroundColor: clusterColors[item.name],
+            }}
+          />
+
+          <Typography
+            sx={{
+              fontSize: "13px",
+              fontWeight: 500,
+              color: "#374151",
+            }}
+          >
+            {item.name.replace("_", " ")}
+          </Typography>
+        </Box>
+      );
+    })}
+  </Box>
+</Box>
+
+    </ResponsiveContainer>
+  </Box>
+
+  {/* RIGHT - SELECTION PANEL */}
+  <Box
+    sx={{
+      width: "200px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "14px",
+    }}
+  >
+    <Typography
+      sx={{
+        fontSize: "13px",
+        fontWeight: 500,
+        color: "#6b7280",
+      }}
+    >
+      Selected Cluster
+    </Typography>
+
+    {chartData.map((item) => {
+      const isActive = activeCluster === item.name;
+
+      return (
+        <Box
+          key={item.name}
+          onClick={() =>
+            setActiveCluster(isActive ? null : item.name)
+          }
+          sx={{
+            padding: "8px 14px",
+            borderRadius: "20px",
+            textAlign: "center",
+            fontSize: "13px",
+            cursor: "pointer",
+            border: isActive
+              ? `1px solid ${clusterColors[item.name]}`
+              : "1px solid #e5e7eb",
+            backgroundColor: isActive
+              ? `${clusterColors[item.name]}20`
+              : "#f9fafb",
+            color: isActive
+              ? clusterColors[item.name]
+              : "#374151",
+            fontWeight: isActive ? 600 : 500,
+            transition: "0.2s ease",
+          }}
+        >
+          {item.name.replace("_", " ")}
+        </Box>
+      );
+    })}
+  </Box>
+</Box>
+
+        </Box>
       </Card>
-      {/* Customers Table */}
-      <Card className="p-3 mt-3">
-      <Box>
-        <Typography variant="h5" sx={{ mb: 2 }}>
+
+      {/* TABLE SECTION */}
+      <Card sx={{ p: 3 }}>
+        <Typography variant="h6" mb={2}>
           Customers Table
         </Typography>
+
         <Table
           columns={columns}
           dataSource={filteredRows}
           rowKey="customer"
-          pagination={{ ...pagination, total: filteredRows.length, showSizeChanger: true }}
+          pagination={{
+            ...pagination,
+            total: filteredRows.length,
+            showSizeChanger: true,
+          }}
           onChange={handleTableChange}
         />
-      </Box>
-    </Card>
+      </Card>
     </Box>
+        </>
   );
 }
