@@ -183,14 +183,14 @@ export default function CustomerDetailPage() {
         {/* Overview */}
         <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
           <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-            <Card style={{background: 'rgba(239, 246, 255, 1)'}}>
-              <Title level={3} style={{ margin: "0 0 10px" }}>Purchase Details</Title>
+            <Card style={{background: 'rgba(239, 246, 255, 1)'}} className="purchase-detail-wrapper">
+              <Title level={5} style={{ margin: "0 0 10px" }}>Purchase Details</Title>
               <Descriptions size="middle" colon={false} column={{ xs: 1, sm: 1, md: 2 }} labelStyle={{ color: "rgba(0,0,0,0.65)" }}>
                 <Descriptions.Item label="Customer">{customer.customer}</Descriptions.Item>
                 <Descriptions.Item label="Cluster">{customer.cluster}</Descriptions.Item>
                 <Descriptions.Item label="Churn"><Tag color={churnColor}>{customer.churn}</Tag></Descriptions.Item>
-                <Descriptions.Item label="Purchase Details" span={3}>
-                  <Text type="secondary" className="purchase-detail-content" style={{ fontWeight: 'bold', fontSize:'20px', color:'rgba(16, 24, 40, 1)'}}>{customer.Purchase_details}</Text>
+                <Descriptions.Item label="Purchase Details" span={3} className="purchase-detail-content">
+                  <Text type="secondary"  style={{ fontWeight: 'bold', fontSize:'20px', color:'rgba(16, 24, 40, 1)'}}>{customer.Purchase_details}</Text>
                 </Descriptions.Item>
               </Descriptions>
             </Card>
@@ -198,11 +198,15 @@ export default function CustomerDetailPage() {
         </motion.div>
 
         {/* Charts */}
+        <Card style={{ background:'#fff'}} title="Predictions & Analytics">
+         
+        
         <Row gutter={[16, 16]}>
           <Col xs={24} md={12}>
             <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
               <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                <Card title="Revenue by Quarter" extra={<MiniLegend />}>
+                  <Card title="Revenue by Quarter" style={{
+                    background: 'rgba(249, 250, 251, 1)'}} extra={<MiniLegend />}>
                   {revenueByQuarter.length ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={revenueByQuarter}>
@@ -223,7 +227,7 @@ export default function CustomerDetailPage() {
           <Col xs={24} md={12}>
             <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
               <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                <Card title="Revenue by Year" extra={<MiniLegend />}>
+                  <Card title="Revenue by Year" style={{ background: 'rgba(249, 250, 251, 1)'}} extra={<MiniLegend />}>
                   {revenueByYear.length ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={revenueByYear}>
@@ -242,6 +246,7 @@ export default function CustomerDetailPage() {
             </motion.div>
           </Col>
         </Row>
+        </Card>
 
         {/* Insight cards with container stagger */}
         <motion.div
@@ -417,7 +422,7 @@ function AnimatedKeyValueList({ title, data, icon, ...props }) {
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
-                <Text strong style={{ fontSize: 14 }}><span className="circle"></span>{k}</Text>  
+                <Text strong style={{ fontSize: 14 }}><span className="circle bg-success"></span>{k}</Text>  
                 <Paragraph style={{ margin: 0 }} type="secondary">{v}</Paragraph>
               </motion.div>
             );
