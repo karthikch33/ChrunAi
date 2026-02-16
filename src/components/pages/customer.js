@@ -34,7 +34,7 @@ const liftHover = {
 
 export default function CustomerDetailPage() {
   const { customerNo } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [customer, setCustomer] = useState(null);
 
@@ -51,10 +51,171 @@ export default function CustomerDetailPage() {
       .catch((err) => setError(err.message))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
+
+//     setCustomer({
+//     id: "CUST-1001",
+//     name: "Yash Technologies Pvt Ltd",
+//     industry: "IT Services",
+//     region: "Asia Pacific",
+//     segment: "Enterprise",
+//     onboardingDate: "2023-02-15",
+
+//     financials: {
+//       totalRevenue: 1250000,
+//       currentMonthRevenue: 145000,
+//       averageOrderValue: 8200,
+//       lifetimeValue: 2400000,
+//       churnProbability: 0.27
+//     },
+
+//     churn_analysis: `
+// Customer shows moderate churn risk.
+// Usage frequency dropped by 18% in last 2 months.
+// Support tickets increased by 12%.
+// Payment cycle extended from 30 to 45 days.
+//     `,
+
+//     trend_of_sales: `
+// Q1 steady growth.
+// Q2 spike due to enterprise expansion.
+// Q3 slight decline (budget cuts).
+// Q4 projected 12% growth based on pipeline.
+//     `,
+
+//     retention_strategies: `
+// Offer volume-based discount.
+// Assign dedicated account manager.
+// Provide early access to new product features.
+// Offer bundled pricing for enterprise tier.
+//     `,
+
+//     Retention_offers: `
+// Competitor A pricing: $7800/month
+// Competitor B pricing: $7500/month
+// Our pricing: $8200/month
+// Suggested adjustment: 5% loyalty discount.
+//     `,
+
+//     revenueDistribution: [
+//       { cluster: "North America", revenue: 450000 },
+//       { cluster: "Europe", revenue: 320000 },
+//       { cluster: "Asia Pacific", revenue: 480000 }
+//     ],
+
+//     orders: [
+//       {
+//         orderId: "ORD-901",
+//         date: "2025-11-01",
+//         amount: 9200,
+//         status: "Completed"
+//       },
+//       {
+//         orderId: "ORD-902",
+//         date: "2025-12-12",
+//         amount: 8600,
+//         status: "Completed"
+//       },
+//       {
+//         orderId: "ORD-903",
+//         date: "2026-01-05",
+//         amount: 7900,
+//         status: "Pending"
+//       }
+//     ]
+//   },
+
+//   {
+//     id: "CUST-1002",
+//     name: "TechNova Solutions",
+//     industry: "FinTech",
+//     region: "Europe",
+//     segment: "Mid Market",
+//     onboardingDate: "2024-06-10",
+
+//     financials: {
+//       totalRevenue: 780000,
+//       currentMonthRevenue: 92000,
+//       averageOrderValue: 5400,
+//       lifetimeValue: 1100000,
+//       churnProbability: 0.14
+//     },
+
+//     churn_analysis: `
+// Low churn probability.
+// High engagement in analytics module.
+// Stable renewal history.
+//     `,
+
+//     trend_of_sales: `
+// Consistent 8-10% quarterly growth.
+// Strong adoption of premium add-ons.
+//     `,
+
+//     retention_strategies: `
+// Introduce referral rewards.
+// Provide flexible contract terms.
+// Offer data insights consultation.
+//     `,
+
+//     Retention_offers: `
+// Competitor average pricing: $5100/month
+// Our pricing: $5400/month
+// Value justification through advanced analytics.
+//     `,
+
+//     revenueDistribution: [
+//       { cluster: "Europe", revenue: 420000 },
+//       { cluster: "Middle East", revenue: 200000 },
+//       { cluster: "Asia", revenue: 160000 }
+//     ],
+
+//     orders: [
+//       {
+//         orderId: "ORD-1101",
+//         date: "2025-10-15",
+//         amount: 5400,
+//         status: "Completed"
+//       },
+//       {
+//         orderId: "ORD-1102",
+//         date: "2025-12-02",
+//         amount: 5600,
+//         status: "Completed"
+//       }
+//     ],
+//     best_price_by_material: [
+//   {
+//     material: "Steel Rod",
+//     current_price: 820,
+//     competitor_price: 790,
+//     suggested_price: 800,
+//     margin_impact: "+3.5%",
+//     demand_trend: "High",
+//     recommendation: "Reduce slightly to stay competitive"
+//   },
+//   {
+//     material: "Aluminium Sheet",
+//     current_price: 650,
+//     competitor_price: 640,
+//     suggested_price: 645,
+//     margin_impact: "+2.1%",
+//     demand_trend: "Medium",
+//     recommendation: "Maintain with minor adjustment"
+//   },
+//   {
+//     material: "Copper Wire",
+//     current_price: 1100,
+//     competitor_price: 1080,
+//     suggested_price: 1075,
+//     margin_impact: "-1.2%",
+//     demand_trend: "Low",
+//     recommendation: "Lower to avoid churn risk"
+//   }
+// ]
+//   })
+
   }, [customerNo]);
 
-
-  console.log(customer);
 
   const revenueByQuarter = useMemo(() => {
     if (!customer?.revenue_by_quarter) return [];
@@ -260,9 +421,22 @@ export default function CustomerDetailPage() {
               <Col xs={24} md={12} lg={6} key={i}>
                 <motion.div variants={rise}>
                   <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                    <Card title={<Space>{c.icon}<span>{c.title}</span></Space>}>
-                      <Paragraph style={{ marginBottom: 0 }}>{c.text}</Paragraph>
-                    </Card>
+                    <Card
+                    title={<Space>{c.icon}<span>{c.title}</span></Space>}
+                    style={{
+                      height: "150px",              // fixed height (adjust as needed)
+                      display: "flex",
+                      flexDirection: "column"
+                    }}
+                    bodyStyle={{
+                      flex: 1,
+                      overflowY: "auto"
+                    }}
+                  >
+                    <Paragraph style={{ marginBottom: 0 }}>
+                      {c.text}
+                    </Paragraph>
+                  </Card>
                   </motion.div>
                 </motion.div>
               </Col>
@@ -285,14 +459,49 @@ export default function CustomerDetailPage() {
         {customer.best_price_by_material?.length > 0 && (
           <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
             <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-              <Card title={<Title level={5} style={{ margin: 0 }}>Best Price Suggestions</Title>} bodyStyle={{ paddingTop: 0 }}>
-                <Divider />
-                <Space direction="vertical" size={8} style={{ width: "100%" }}>
-                  {customer.best_price_by_material.map((item, idx) => (
-                    <SuggestionRow key={idx} item={item} />
-                  ))}
-                </Space>
-              </Card>
+             <Card
+  title={<Title level={5} style={{ margin: 0 }}>Best Price Suggestions</Title>}
+  bodyStyle={{ padding: 0 }}
+>
+  <Divider style={{ margin: 0 }} />
+
+  <div style={{ padding: "16px" }}>
+    {/* Header */}
+    <div className="price-table-header">
+      <span>Material</span>
+      <span>Current</span>
+      <span>Competitor</span>
+      <span>Suggested</span>
+      <span>Margin</span>
+      <span>Demand</span>
+      <span>Recommendation</span>
+    </div>
+
+    {/* Rows */}
+    {customer.best_price_by_material.map((item, idx) => (
+      <div className="price-table-row" key={idx}>
+        <span>{item.material}</span>
+        <span>₹{item.current_price}</span>
+        <span>₹{item.competitor_price}</span>
+        <span style={{ fontWeight: 600, color: "#1677ff" }}>
+          ₹{item.suggested_price}
+        </span>
+        <span
+          style={{
+            color: item.margin_impact.includes("-") ? "#ff4d4f" : "#52c41a"
+          }}
+        >
+          {item.margin_impact}
+        </span>
+        <span>{item.demand_trend}</span>
+        <span style={{ fontSize: 12, color: "#888" }}>
+          {item.recommendation}
+        </span>
+      </div>
+    ))}
+  </div>
+</Card>
+
             </motion.div>
           </motion.div>
         )}
