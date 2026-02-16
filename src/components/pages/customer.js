@@ -121,69 +121,8 @@ export default function CustomerDetailPage() {
 //         amount: 7900,
 //         status: "Pending"
 //       }
-//     ]
-//   },
-
-//   {
-//     id: "CUST-1002",
-//     name: "TechNova Solutions",
-//     industry: "FinTech",
-//     region: "Europe",
-//     segment: "Mid Market",
-//     onboardingDate: "2024-06-10",
-
-//     financials: {
-//       totalRevenue: 780000,
-//       currentMonthRevenue: 92000,
-//       averageOrderValue: 5400,
-//       lifetimeValue: 1100000,
-//       churnProbability: 0.14
-//     },
-
-//     churn_analysis: `
-// Low churn probability.
-// High engagement in analytics module.
-// Stable renewal history.
-//     `,
-
-//     trend_of_sales: `
-// Consistent 8-10% quarterly growth.
-// Strong adoption of premium add-ons.
-//     `,
-
-//     retention_strategies: `
-// Introduce referral rewards.
-// Provide flexible contract terms.
-// Offer data insights consultation.
-//     `,
-
-//     Retention_offers: `
-// Competitor average pricing: $5100/month
-// Our pricing: $5400/month
-// Value justification through advanced analytics.
-//     `,
-
-//     revenueDistribution: [
-//       { cluster: "Europe", revenue: 420000 },
-//       { cluster: "Middle East", revenue: 200000 },
-//       { cluster: "Asia", revenue: 160000 }
 //     ],
-
-//     orders: [
-//       {
-//         orderId: "ORD-1101",
-//         date: "2025-10-15",
-//         amount: 5400,
-//         status: "Completed"
-//       },
-//       {
-//         orderId: "ORD-1102",
-//         date: "2025-12-02",
-//         amount: 5600,
-//         status: "Completed"
-//       }
-//     ],
-//     best_price_by_material: [
+//      best_price_by_material: [
 //   {
 //     material: "Steel Rod",
 //     current_price: 820,
@@ -212,7 +151,8 @@ export default function CustomerDetailPage() {
 //     recommendation: "Lower to avoid churn risk"
 //   }
 // ]
-//   })
+//   },
+// )
 
   }, [customerNo]);
 
@@ -481,10 +421,10 @@ export default function CustomerDetailPage() {
     {customer.best_price_by_material.map((item, idx) => (
       <div className="price-table-row" key={idx}>
         <span>{item.material}</span>
-        <span>₹{item.current_price}</span>
-        <span>₹{item.competitor_price}</span>
+        <span>{item.current_price}</span>
+        <span>{item.competitor_price}</span>
         <span style={{ fontWeight: 600, color: "#1677ff" }}>
-          ₹{item.suggested_price}
+          {item.suggested_price}
         </span>
         <span
           style={{
