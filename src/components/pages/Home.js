@@ -14,18 +14,31 @@ import { Sector } from "recharts";
 
 /* -------------------- HELPERS -------------------- */
 
-const formatRevenue = (val) => {
-  if (!val) return "0.00";
-  const str = Number(val).toFixed(2);
-  const [intPart, decimalPart] = str.split(".");
-  const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${formatted}.${decimalPart}`;
+const formatRevenue = (value) => {
+  if (!value) return "0";
+
+  const num = Number(value);
+
+  if (num >= 1_000_000_000) {
+    return `${(num / 1_000_000_000).toFixed(1).replace(/\.0$/, "")}B`;
+  }
+
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  }
+
+  if (num >= 1_000) {
+    return `${(num / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+  }
+
+  return num.toFixed(2).replace(/\.00$/, "");
 };
 
+
 const clusterColors = {
-  high_revenue: "#174a8b",
-  mixed_revenue: "#3e8ebf",
-  low_revenue: "#f2993a",
+  high_revenue: "#073673ff",
+  mixed_revenue: "#0a6298ff",
+  low_revenue: "#d37a1aff",
 };
 
 /* -------------------- COMPONENT -------------------- */
@@ -172,7 +185,7 @@ const renderPercentLabel = ({
       title: "Cluster",
       dataIndex: "cluster_name",
       render: (value) => {
-        const v = value?.toLowerCase();
+        const v = value;
         const bg =
           v === "high_revenue"
             ? "#e3f2fd"
@@ -477,7 +490,7 @@ const renderPercentLabel = ({
           <Cell
             key={index}
             fill={clusterColors[entry.name]}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer"}}
           />
         ))}
       </Pie>
@@ -568,11 +581,12 @@ const renderPercentLabel = ({
             setActiveCluster(isActive ? null : item.name)
           }
           sx={{
-            padding: "8px 14px",
-            borderRadius: "20px",
+            padding: "15px 14px",
+            borderRadius: "40px",
             textAlign: "center",
             fontSize: "13px",
             cursor: "pointer",
+            marginBottom : "10px",
             border: isActive
               ? `1px solid ${clusterColors[item.name]}`
               : "1px solid #e5e7eb",
@@ -582,11 +596,11 @@ const renderPercentLabel = ({
             color: isActive
               ? clusterColors[item.name]
               : "#374151",
-            fontWeight: isActive ? 600 : 500,
+            fontWeight: isActive ? 700 : 600,
             transition: "0.2s ease",
           }}
         >
-          {item.name.replace("_", " ")}
+          <label style={{color : `${clusterColors[item.name]}`}}>{item.name.replace("_", " ")?.toLocaleUpperCase()}</label>
         </Box>
       );
     })}
