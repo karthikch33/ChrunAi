@@ -116,56 +116,69 @@ export default function CustomerDetailPage() {
   const obsList = Array.isArray(customer.observation)
     ? customer.observation
     : customer.observation
-    ? [{ key: "Observation", value: String(customer.observation) }]
-    : [];
+      ? [{ key: "Observation", value: String(customer.observation) }]
+      : [];
 
   const recList = Array.isArray(customer.recommendation)
     ? customer.recommendation
     : customer.recommendation
-    ? [{ key: "Recommendation", value: String(customer.recommendation) }]
-    : [];
+      ? [{ key: "Recommendation", value: String(customer.recommendation) }]
+      : [];
 
   return (
     <>
       <ScrollProgress />
-      <div style={{ padding: 24, display: "grid", gap: 16 }}>
+      <div style={{
+        padding: 24, display: "grid", gap: 16, background:'rgba(249, 250, 251, 1)'
+      }}>
         {/* Header with parallax */}
-        <ParallaxHeader>
-          <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.4, once: false }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-              <Space size={12} align="start">
-                <Title level={3} style={{ margin: 0 }}>Customer Insights</Title>
-                <Tag color="blue">{customer.customer}</Tag>
-                <Tag color="default">Cluster: {customer.cluster}</Tag>
-                <Tag color={churnColor}>Churn: {customer.churn}</Tag>
-              </Space>
-              <Link to="/customers"><ArrowLeftOutlined /> Back</Link>
-            </div>
-          </motion.div>
-        </ParallaxHeader>
+        <Card>
+          <ParallaxHeader>
+            <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.4, once: false }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <Space size={12} align="start">
+                  <Title level={3} style={{ margin: "0 0 10px" }}>Customer Insights</Title>
+                  <Tag color="blue">{customer.customer}</Tag>
+                  <Tag color="default">Cluster: {customer.cluster}</Tag>
+                  <Tag color={churnColor}>Churn: {customer.churn}</Tag>
+                </Space>
+                <Link to="/customers"><ArrowLeftOutlined /> Back</Link>
+              </div>
+              {/* KPI strip */}
+              <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
+                <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
+                  <Card>
+                    <Row gutter={[16, 16]} className="align-items-stretch">
+                      <Col xs={24} sm={12} md={6} className="h-100">
+                        <Card className="h-100">
+                          <KPI label="Total Revenue" value={formatCurrency(totals.total)} hint="All years combined" icon="/revanue-detail.png" />
+                        </Card>
+                      </Col>
+                      <Col xs={24} sm={12} md={6}>
+                        <Card className="h-100">
+                          <KPI label="Latest Year" value={formatCurrency(totals.latest)}
+                            extra={<Delta pct={((totals.latest - totals.prev) / (totals.prev || 1)) * 100} />} icon="/latest-year.png" />
+                        </Card>
+                      </Col>
+                      <Col xs={24} sm={12} md={6}>
+                        <Card className="h-100">
+                          <KPI label="Previous Year" value={formatCurrency(totals.prev)} icon="/previous-year.png" />
+                        </Card>
+                      </Col>
+                      <Col xs={24} sm={12} md={6}>
+                        <Card className="h-100">
+                          <KPI label="Materials Priced" value={String(customer.best_price_by_material?.length || 0)} hint="Suggestions available" icon="/material-price.png" />
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Card>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          </ParallaxHeader>
+        </Card>
 
-        {/* KPI strip */}
-        <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
-          <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-            <Card>
-              <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} md={6}>
-                  <KPI label="Total Revenue" value={formatCurrency(totals.total)} hint="All years combined" />
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <KPI label="Latest Year" value={formatCurrency(totals.latest)}
-                       extra={<Delta pct={((totals.latest - totals.prev) / (totals.prev || 1)) * 100} />} />
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <KPI label="Previous Year" value={formatCurrency(totals.prev)} />
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <KPI label="Materials Priced" value={String(customer.best_price_by_material?.length || 0)} hint="Suggestions available" />
-                </Col>
-              </Row>
-            </Card>
-          </motion.div>
-        </motion.div>
+
 
         {/* Overview */}
         <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
@@ -288,14 +301,14 @@ export default function CustomerDetailPage() {
           <Col xs={24} md={12}>
             <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
               <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                <AnimatedKeyValueList title="Observations" data={obsList} />
+                <AnimatedKeyValueList title="Observations" data={obsList} icon={'/observation.png'} className="observations-list" />
               </motion.div>
             </motion.div>
           </Col>
           <Col xs={24} md={12}>
             <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
               <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                <AnimatedKeyValueList title="Recommendations" data={recList} />
+                <AnimatedKeyValueList title="Recommendations" data={recList} icon={"/recommendations.png"} className="recommendation-list" />
               </motion.div>
             </motion.div>
           </Col>
@@ -306,12 +319,20 @@ export default function CustomerDetailPage() {
 }
 
 // Small components
-function KPI({ label, value, hint, extra }) {
+function KPI({ label, value, hint, extra, icon }) {
   return (
-    <div style={{ display: "grid", gap: 4 }}>
-      <Text type="secondary" style={{ fontSize: 12 }}>{label}</Text>
+    <div style={{ display: "grid", gap: 4, alignItems:'stretch', height:'100%' }}>
+      <Text type="secondary" style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: 'space-between',
+        fontSize: 14, color: "rgba(74, 85, 101, 1)", fontWeight: 700,
+        height:'100%'
+      }}>{label} {icon && <img src={icon} alt="Revenue Detail" />}</Text>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Title level={4} style={{ margin: 0 }}>{value}</Title>
+        <Title level={4} style={{
+          margin: 0, fontSize: 20, fontWeight: 700, color: "rgba(16, 24, 40, 1)"
+        }}>{value}</Title>
         {extra}
       </div>
       {hint && <Text type="secondary" style={{ fontSize: 12 }}>{hint}</Text>}
@@ -344,7 +365,7 @@ function SuggestionRow({ item }) {
 
 /* ---------------- Animated list for {key, value} arrays ---------------- */
 
-function AnimatedKeyValueList({ title, data }) {
+function AnimatedKeyValueList({ title, data, icon, ...props }) {
   const list = {
     hidden: { opacity: 1 },
     show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
@@ -357,14 +378,22 @@ function AnimatedKeyValueList({ title, data }) {
 
   if (!Array.isArray(data) || data.length === 0) {
     return (
-      <Card title={title}>
+      <Card title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {icon && <img src={icon} alt={title} />}
+        {title}
+      </span>}>
         <Empty description="No data available" />
       </Card>
     );
   }
 
   return (
-    <Card title={title}>
+    <Card {...props} title={
+      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {icon && <img src={icon} alt={title} style={{ width: 24, height: 24 }} />}
+        {title}
+      </span>
+    }>
       <motion.div
         variants={list}
         initial="hidden"
@@ -387,7 +416,7 @@ function AnimatedKeyValueList({ title, data }) {
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
-                <Text strong style={{ fontSize: 14 }}>{k}</Text>
+                <Text strong style={{ fontSize: 14 }}><span className="circle"></span>{k}</Text>  
                 <Paragraph style={{ margin: 0 }} type="secondary">{v}</Paragraph>
               </motion.div>
             );
