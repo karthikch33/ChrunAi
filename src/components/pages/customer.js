@@ -147,7 +147,7 @@ export default function CustomerDetailPage() {
               {/* KPI strip */}
               <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
                 <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                  <Card>
+                  <Card style={{background: 'rgba(249, 250, 251, 1)'}}>
                     <Row gutter={[16, 16]} className="align-items-stretch">
                       <Col xs={24} sm={12} md={6} className="h-100">
                         <Card className="h-100">
@@ -183,13 +183,14 @@ export default function CustomerDetailPage() {
         {/* Overview */}
         <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
           <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-            <Card>
-              <Descriptions size="middle" colon={false} column={{ xs: 1, sm: 2, md: 3 }} labelStyle={{ color: "rgba(0,0,0,0.65)" }}>
+            <Card style={{background: 'rgba(239, 246, 255, 1)'}}>
+              <Title level={3} style={{ margin: "0 0 10px" }}>Purchase Details</Title>
+              <Descriptions size="middle" colon={false} column={{ xs: 1, sm: 1, md: 2 }} labelStyle={{ color: "rgba(0,0,0,0.65)" }}>
                 <Descriptions.Item label="Customer">{customer.customer}</Descriptions.Item>
                 <Descriptions.Item label="Cluster">{customer.cluster}</Descriptions.Item>
                 <Descriptions.Item label="Churn"><Tag color={churnColor}>{customer.churn}</Tag></Descriptions.Item>
                 <Descriptions.Item label="Purchase Details" span={3}>
-                  <Text type="secondary">{customer.Purchase_details}</Text>
+                  <Text type="secondary" className="purchase-detail-content" style={{ fontWeight: 'bold', fontSize:'20px', color:'rgba(16, 24, 40, 1)'}}>{customer.Purchase_details}</Text>
                 </Descriptions.Item>
               </Descriptions>
             </Card>
