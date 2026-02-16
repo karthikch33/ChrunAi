@@ -46,5 +46,6 @@
 }
 
 .purchase-detail-content .ant-descriptions-item-label{
-display: none;
+display: none !important;
 }
+.purchase-detail-wrapper table{ width: auto !important}
