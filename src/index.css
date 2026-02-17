@@ -21,3 +21,11 @@ code {
   background-color: #1976d2;
   margin-right: 8px;
 }
+
+.bg-orange-light {
+  background-color: rgba(255, 237, 213, 1) !important;
+}
+
+.bg-blue-light {
+  background-color: rgba(219, 234, 254, 1) !important;
+}

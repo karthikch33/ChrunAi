@@ -49,3 +49,17 @@
 display: none !important;
 }
 .purchase-detail-wrapper table{ width: auto !important}
+.bg-blue-light{
+  height:100%;
+  border:#fff 0.8px solid rgba(190, 219, 255, 1);
+   background:rgba(239, 246, 255, 1)
+}
+
+.bg-orange-light{
+  height:100%;
+  border: 0.8px solid rgba(255, 214, 168, 1);
+   background: rgba(255, 247, 237, 1);
+}
+   .ant-card-header{
+    border-color:#dddddd !important
+   }
