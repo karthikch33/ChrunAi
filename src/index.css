@@ -21,6 +21,9 @@ code {
   background-color: #1976d2;
   margin-right: 8px;
 }
+.recommendation-list .circle {
+  background: rgba(22, 163, 74, 1);
+}
 
 .bg-orange-light {
   background-color: rgba(255, 237, 213, 1) !important;

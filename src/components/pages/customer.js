@@ -39,114 +39,24 @@ export default function CustomerDetailPage() {
   const { customerNo } = useParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [customer, setCustomer] = useState({
-    "customer": "1001",
-    "cluster": "low_revenue",
-    "churn": "yes",
-    "churn_analysis": "Revenue plummeted 98% from 2024 to 2025. Account at severe churn risk, requiring immediate intervention.",
-    "retention_strategies": "Aggressive win-back, value-based pricing, executive relationship, product portfolio diversification.",
-    "Retention_offers": "Targeted discounts, volume commitments, bundled solutions, premium service tiers.",
-    "Purchase_details": "ReactoMax ($9.18B), CatalyPro ($7.45B), ThermoFlux ($4.18B) are frequent high-value purchases.",
-    "revenue_by_year": {
-        "2024": 42287622800.0,
-        "2025": 665588200.0
-    },
-    "revenue_by_quarter": {
-        "2024-Q3": 22937254500.0,
-        "2024-Q4": 19350368300.0,
-        "2025-Q3": 589976300.0,
-        "2025-Q4": 75611900.0
-    },
-    "trend_of_sales": "Strong Q3-Q4 2024 performance, followed by a dramatic 98% decline in 2025, indicating severe loss of business.",
-    "product_combination": "Industrial Solvent often co-purchased with Organic Reagent and Polyethylene Compound.",
-    "best_price_by_material": [
-        {
-            "material": "ReactoMax",
-            "current_price": 8140.0,
-            "suggested_price": 7733.0,
-            "discount": "5%"
-        },
-        {
-            "material": "CatalyPro",
-            "current_price": 5400.0,
-            "suggested_price": 5130.0,
-            "discount": "5%"
-        },
-        {
-            "material": "ThermoFlux",
-            "current_price": 4300.0,
-            "suggested_price": 4085.0,
-            "discount": "5%"
-        },
-        {
-            "material": "HydroSil",
-            "current_price": 1891.0,
-            "suggested_price": 1796.45,
-            "discount": "5%"
-        }
-    ],
-    "observation": [
-        {
-            "key": "Critical Revenue Decline",
-            "value": "Customer revenue dropped 98% from 2024 to 2025, signaling an immediate and significant loss of business."
-        },
-        {
-            "key": "Anchor Product Reliance",
-            "value": "ReactoMax and CatalyPro represented over 38% of 2024 revenue, indicating core product dependency."
-        },
-        {
-            "key": "High-Margin Opportunities",
-            "value": "Products like HydroSil (50.5% margin) and ReactoMax (46.1% margin) offer profit retention potential."
-        },
-        {
-            "key": "Co-Purchase Synergies",
-            "value": "Identified co-purchase pairs suggest bundling opportunities to expand share of wallet."
-        },
-        {
-            "key": "Historical Cadence",
-            "value": "Account historically showed consistent monthly purchasing in 2024, implying a disrupted procurement cycle."
-        }
-    ],
-    "recommendation": [
-        {
-            "key": "Executive Intervention",
-            "value": "Initiate immediate executive-level contact to understand the severe revenue drop and re-establish trust."
-        },
-        {
-            "key": "Targeted Win-Back Offer",
-            "value": "Propose a competitive 5% discount on anchor products (ReactoMax, CatalyPro, ThermoFlux, HydroSil) to incentivize re-engagement."
-        },
-        {
-            "key": "Strategic Product Bundling",
-            "value": "Create bundled offers for co-purchased items (e.g., Industrial Solvent, Organic Reagent) to increase wallet share."
-        },
-        {
-            "key": "Enhanced Value Proposition",
-            "value": "Articulate non-price value like supply chain reliability, technical support, and partnership benefits."
-        },
-        {
-            "key": "ROI for Q1 2026",
-            "value": "Projecting a 2% recovery of 2024's average quarterly run rate in Q1 2026 could add $200M+ revenue."
-        }
-    ]
-});
+  const [customer, setCustomer] = useState(null);
 
-  // useEffect(() => {
-  //   let active = true;
-  //   setLoading(true);
-  //   setError(null);
-  //   fetch(`https://churn-poc.onrender.com/customer-insights/${customerNo}`)
-  //     .then((res) => {
-  //       if (!res.ok) throw new Error("Failed to fetch customer data");
-  //       return res.json();
-  //     })
-  //     .then((data) => active && setCustomer(data))
-  //     .catch((err) => setError(err.message))
-  //     .finally(() => active && setLoading(false));
-  //   return () => { active = false; };
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    fetch(`https://churn-poc.onrender.com/customer-insights/${customerNo}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch customer data");
+        return res.json();
+      })
+      .then((data) => active && setCustomer(data))
+      .catch((err) => setError(err.message))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
 
     
-  // }, [customerNo]);
+  }, [customerNo]);
 
 
     const revenueByQuarter = useMemo(() => {
@@ -657,7 +567,7 @@ function AnimatedKeyValueList({ title, data, icon, ...props }) {
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
-                <Text strong style={{ fontSize: 14 }}><span className="circle bg-success"></span>{k}</Text>  
+                <Text strong style={{ fontSize: 14 }}><span className="circle success"></span>{k}</Text>  
                 <Paragraph style={{ margin: 0 }} type="secondary">{v}</Paragraph>
               </motion.div>
             );
