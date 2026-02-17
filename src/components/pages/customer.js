@@ -257,16 +257,16 @@ export default function CustomerDetailPage() {
         >
           <Row gutter={[16, 16]}>
             {[
-              { title: "Churn Analysis", icon: <InfoCircleOutlined />, text: customer.churn_analysis },
-              { title: "Sales Trend", icon: <LineChartOutlined />, text: customer.trend_of_sales },
-              { title: "Retention Strategy", icon: <BulbOutlined />, text: customer.retention_strategies },
-              { title: "Competitor Pricing", icon: <GiftOutlined />, text: customer.Retention_offers },
+              { title: "Churn Analysis", icon: <InfoCircleOutlined />, text: customer.churn_analysis, className :'bg-orange-light' },
+              { title: "Sales Trend", icon: <LineChartOutlined />, text: customer.trend_of_sales, className: 'bg-blue-light' },
+              { title: "Retention Strategy", icon: <BulbOutlined />, text: customer.retention_strategies, className: 'bg-blue-light' },
+              { title: "Competitor Pricing", icon: <GiftOutlined />, text: customer.Retention_offers, className: 'bg-orange-light' },
             ].map((c, i) => (
-              <Col xs={24} md={12} lg={6} key={i}>
+              <Col xs={24} md={12} lg={12} key={i} className="h-100">
                 <motion.div variants={rise}>
                   <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                    <Card title={<Space>{c.icon}<span>{c.title}</span></Space>}>
-                      <Paragraph style={{ marginBottom: 0 }}>{c.text}</Paragraph>
+                    <Card className={c.className} title={<Space>{c.icon}<span>{c.title}</span></Space>}>
+                      <Paragraph style={{ marginBottom: 0, fontWeight:700 }}>{c.text}</Paragraph>
                     </Card>
                   </motion.div>
                 </motion.div>
