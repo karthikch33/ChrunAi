@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Card, Skeleton, Alert, Tag, Typography, Space, Divider, Row, Col, Empty, Descriptions,
+  Table,
 } from "antd";
 import {
   ArrowDownOutlined, ArrowUpOutlined, ArrowLeftOutlined, InfoCircleOutlined,
@@ -10,6 +11,8 @@ import {
 } from "@ant-design/icons";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
+  Line,
+  LineChart,
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import ScrollProgress from "./ScrollProgress";
@@ -34,32 +37,122 @@ const liftHover = {
 
 export default function CustomerDetailPage() {
   const { customerNo } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [customer, setCustomer] = useState(null);
+  const [customer, setCustomer] = useState({
+    "customer": "1001",
+    "cluster": "low_revenue",
+    "churn": "yes",
+    "churn_analysis": "Revenue plummeted 98% from 2024 to 2025. Account at severe churn risk, requiring immediate intervention.",
+    "retention_strategies": "Aggressive win-back, value-based pricing, executive relationship, product portfolio diversification.",
+    "Retention_offers": "Targeted discounts, volume commitments, bundled solutions, premium service tiers.",
+    "Purchase_details": "ReactoMax ($9.18B), CatalyPro ($7.45B), ThermoFlux ($4.18B) are frequent high-value purchases.",
+    "revenue_by_year": {
+        "2024": 42287622800.0,
+        "2025": 665588200.0
+    },
+    "revenue_by_quarter": {
+        "2024-Q3": 22937254500.0,
+        "2024-Q4": 19350368300.0,
+        "2025-Q3": 589976300.0,
+        "2025-Q4": 75611900.0
+    },
+    "trend_of_sales": "Strong Q3-Q4 2024 performance, followed by a dramatic 98% decline in 2025, indicating severe loss of business.",
+    "product_combination": "Industrial Solvent often co-purchased with Organic Reagent and Polyethylene Compound.",
+    "best_price_by_material": [
+        {
+            "material": "ReactoMax",
+            "current_price": 8140.0,
+            "suggested_price": 7733.0,
+            "discount": "5%"
+        },
+        {
+            "material": "CatalyPro",
+            "current_price": 5400.0,
+            "suggested_price": 5130.0,
+            "discount": "5%"
+        },
+        {
+            "material": "ThermoFlux",
+            "current_price": 4300.0,
+            "suggested_price": 4085.0,
+            "discount": "5%"
+        },
+        {
+            "material": "HydroSil",
+            "current_price": 1891.0,
+            "suggested_price": 1796.45,
+            "discount": "5%"
+        }
+    ],
+    "observation": [
+        {
+            "key": "Critical Revenue Decline",
+            "value": "Customer revenue dropped 98% from 2024 to 2025, signaling an immediate and significant loss of business."
+        },
+        {
+            "key": "Anchor Product Reliance",
+            "value": "ReactoMax and CatalyPro represented over 38% of 2024 revenue, indicating core product dependency."
+        },
+        {
+            "key": "High-Margin Opportunities",
+            "value": "Products like HydroSil (50.5% margin) and ReactoMax (46.1% margin) offer profit retention potential."
+        },
+        {
+            "key": "Co-Purchase Synergies",
+            "value": "Identified co-purchase pairs suggest bundling opportunities to expand share of wallet."
+        },
+        {
+            "key": "Historical Cadence",
+            "value": "Account historically showed consistent monthly purchasing in 2024, implying a disrupted procurement cycle."
+        }
+    ],
+    "recommendation": [
+        {
+            "key": "Executive Intervention",
+            "value": "Initiate immediate executive-level contact to understand the severe revenue drop and re-establish trust."
+        },
+        {
+            "key": "Targeted Win-Back Offer",
+            "value": "Propose a competitive 5% discount on anchor products (ReactoMax, CatalyPro, ThermoFlux, HydroSil) to incentivize re-engagement."
+        },
+        {
+            "key": "Strategic Product Bundling",
+            "value": "Create bundled offers for co-purchased items (e.g., Industrial Solvent, Organic Reagent) to increase wallet share."
+        },
+        {
+            "key": "Enhanced Value Proposition",
+            "value": "Articulate non-price value like supply chain reliability, technical support, and partnership benefits."
+        },
+        {
+            "key": "ROI for Q1 2026",
+            "value": "Projecting a 2% recovery of 2024's average quarterly run rate in Q1 2026 could add $200M+ revenue."
+        }
+    ]
+});
 
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setError(null);
-    fetch(`https://churn-poc.onrender.com/customer-insights/${customerNo}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch customer data");
-        return res.json();
-      })
-      .then((data) => active && setCustomer(data))
-      .catch((err) => setError(err.message))
-      .finally(() => active && setLoading(false));
-    return () => { active = false; };
-  }, [customerNo]);
+  // useEffect(() => {
+  //   let active = true;
+  //   setLoading(true);
+  //   setError(null);
+  //   fetch(`https://churn-poc.onrender.com/customer-insights/${customerNo}`)
+  //     .then((res) => {
+  //       if (!res.ok) throw new Error("Failed to fetch customer data");
+  //       return res.json();
+  //     })
+  //     .then((data) => active && setCustomer(data))
+  //     .catch((err) => setError(err.message))
+  //     .finally(() => active && setLoading(false));
+  //   return () => { active = false; };
+
+    
+  // }, [customerNo]);
 
 
-  console.log(customer);
-
-  const revenueByQuarter = useMemo(() => {
-    if (!customer?.revenue_by_quarter) return [];
-    return Object.entries(customer.revenue_by_quarter).map(([key, value]) => ({ key, value: Number(value) }));
-  }, [customer]);
+    const revenueByQuarter = useMemo(() => {
+      if (!customer?.revenue_by_quarter) return [];
+      return Object.entries(customer.revenue_by_quarter).map(([key, value]) => ({ key, value: Number(value) }));
+    }, [customer]);
 
   const revenueByYear = useMemo(() => {
     if (!customer?.revenue_by_year) return [];
@@ -205,18 +298,72 @@ export default function CustomerDetailPage() {
           <Col xs={24} md={12}>
             <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
               <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                  <Card title="Revenue by Quarter" style={{
-                    background: 'rgba(249, 250, 251, 1)'}} extra={<MiniLegend />}>
+                  <Card
+                   style={{ background: "rgba(249, 250, 251, 1)" }}
+                   headStyle={{ position: "relative" }}
+                   title={
+                     <div
+                       style={{
+                         textAlign: "center",
+                         fontWeight: 600,
+                         fontSize: 16,
+                         color: "#000",
+                       }}
+                     >
+                       Revenue by Quarter
+                     </div>
+                   }
+                   extra={
+                     <div style={{ position: "absolute", right: 24, top: 16 }}>
+                       <MiniLegend />
+                     </div>
+                   }  
+                  >
                   {revenueByQuarter.length ? (
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={revenueByQuarter}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="key" />
-                        <YAxis tickFormatter={compactIN} />
-                        <Tooltip formatter={(v) => formatCurrency(v)} />
-                        <Bar dataKey="value" fill="#1976d2" radius={[6, 6, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <BarChart
+                      data={revenueByQuarter}
+                      margin={{ top: 10, right: 20, left: 40, bottom: 5 }}
+                      barCategoryGap="25%"
+                    >
+                      <CartesianGrid
+                        stroke="#E5E7EB"
+                        strokeDasharray="3 3"
+                        vertical={false}
+                      />
+                  
+                    <XAxis
+                      dataKey="key"
+                      axisLine={{ stroke: "#374151", strokeWidth: 1.5 }}
+                      tickLine={{ stroke: "#374151" }}
+                      tick={{ fill: "#111827", fontSize: 14, fontWeight: 500 }}
+                    />
+
+                    <YAxis
+                      width={80}
+                      axisLine={{ stroke: "#374151", strokeWidth: 1.5 }}
+                      tickLine={{ stroke: "#374151" }}
+                      tickFormatter={(value) => value.toLocaleString("en-IN")}
+                      tick={{ fill: "#111827", fontSize: 14, fontWeight: 500 }}
+                    />
+                  
+                      <Tooltip
+                        formatter={(v) => v.toLocaleString("en-IN")}
+                        contentStyle={{
+                          borderRadius: "8px",
+                          border: "1px solid #E5E7EB",
+                        }}
+                      />
+                  
+                      <Bar
+                        dataKey="value"
+                        fill="#2B8CBE"
+                        radius={[8, 8, 0, 0]}
+                        maxBarSize={60}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                  
                   ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No quarterly data" />
                   )}
@@ -227,17 +374,80 @@ export default function CustomerDetailPage() {
           <Col xs={24} md={12}>
             <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
               <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
-                  <Card title="Revenue by Year" style={{ background: 'rgba(249, 250, 251, 1)'}} extra={<MiniLegend />}>
+                  <Card 
+                   style={{ background: "rgba(249, 250, 251, 1)" }}
+                   headStyle={{ position: "relative" }}
+                   title={
+                     <div
+                       style={{
+                         textAlign: "center",
+                         fontWeight: 600,
+                         fontSize: 16,
+                         color: "#374151",
+                       }}
+                     >
+                       Revenue by Year
+                     </div>
+                   }
+                   extra={
+                     <div style={{ position: "absolute", right: 24, top: 16 }}>
+                       <MiniLegend />
+                     </div>
+                   }  
+                  >
                   {revenueByYear.length ? (
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={revenueByYear}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                        <XAxis dataKey="key" />
-                        <YAxis tickFormatter={compactIN} />
-                        <Tooltip formatter={(v) => formatCurrency(v)} />
-                        <Bar dataKey="value" fill="#2e7d32" radius={[6, 6, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <LineChart
+                      data={revenueByYear}
+                      margin={{ top: 10, right: 20, left: 40, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        stroke="#E5E7EB"
+                        strokeDasharray="3 3"
+                        vertical={false}
+                      />
+                  
+                      <XAxis
+                        dataKey="key"
+                        axisLine={{ stroke: "#374151", strokeWidth: 1.5 }}
+                        tickLine={{ stroke: "#374151" }}
+                        tick={{ fill: "#111827", fontSize: 14, fontWeight: 500 }}
+                      />
+                  
+                      <YAxis
+                        width={90}
+                        axisLine={{ stroke: "#374151", strokeWidth: 1.5 }}
+                        tickLine={{ stroke: "#374151" }}
+                        tickFormatter={(value) => value.toLocaleString("en-IN")}
+                        tick={{ fill: "#111827", fontSize: 14, fontWeight: 500 }}
+                      />
+                  
+                      <Tooltip
+                        formatter={(v) => v.toLocaleString("en-IN")}
+                        contentStyle={{
+                          borderRadius: "8px",
+                          border: "1px solid #E5E7EB",
+                        }}
+                      />
+                  
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#2F80ED"
+                        strokeWidth={3}
+                        dot={{
+                          r: 5,
+                          stroke: "#2F80ED",
+                          strokeWidth: 2,
+                          fill: "#ffffff",
+                        }}
+                        activeDot={{
+                          r: 7,
+                        }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  
                   ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No yearly data" />
                   )}
@@ -291,12 +501,56 @@ export default function CustomerDetailPage() {
           <motion.div variants={rise} initial="hidden" whileInView="show" viewport={{ amount: 0.3, once: false }}>
             <motion.div variants={liftHover} initial="initial" whileHover="hover" whileTap="tap">
               <Card title={<Title level={5} style={{ margin: 0 }}>Best Price Suggestions</Title>} bodyStyle={{ paddingTop: 0 }}>
-                <Divider />
-                <Space direction="vertical" size={8} style={{ width: "100%" }}>
-                  {customer.best_price_by_material.map((item, idx) => (
-                    <SuggestionRow key={idx} item={item} />
-                  ))}
-                </Space>
+
+                <Table
+                  dataSource={customer.best_price_by_material}
+                  pagination={false}
+                  rowKey="material"
+                  bordered={false}
+                  columns={[
+                    {
+                      title: "Product Name",
+                      dataIndex: "material",
+                      key: "material",
+                    },
+                    {
+                      title: "Current Sales Price",
+                      dataIndex: "current_price",
+                      key: "current_price",
+                      render: (value) =>
+                        formatCurrency(Number(value || 0)),
+                    },
+                    {
+                      title: "Proposed Sales Price",
+                      dataIndex: "suggested_price",
+                      key: "suggested_price",
+                      render: (value) => (
+                        <span style={{ color: "#16A34A", fontWeight: 600 }}>
+                          {formatCurrency(Number(value || 0))}
+                        </span>
+                      ),
+                    },
+                    {
+                      title: "Discount %",
+                      dataIndex: "discount",
+                      key: "discount",
+                      render: (value) => (
+                        <span
+                          style={{
+                            background: "#FEF3C7",
+                            color: "#B45309",
+                            padding: "4px 12px",
+                            borderRadius: "20px",
+                            fontSize: 12,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {value}
+                        </span>
+                      ),
+                    }
+                  ]}
+                />
               </Card>
             </motion.div>
           </motion.div>
@@ -348,25 +602,6 @@ function KPI({ label, value, hint, extra, icon }) {
 
 function MiniLegend() {
   return <Text type="secondary" style={{ fontSize: 12 }}>Values in DOLLARS</Text>;
-}
-
-function SuggestionRow({ item }) {
-  const price = Number(item.suggested_price || 0);
-  const current_price = Number(item.current_price || 0);
-  const discount = String(item.discount || "");
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, justifyContent: "space-between" }}>
-      <div style={{ minWidth: 0 }}>
-        <Text strong style={{ display: "block" }}>{item.material}</Text>
-        <Text type="secondary" style={{ fontSize: 12 }}>Suggested</Text>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Tag color="blue">{formatCurrency(current_price)}</Tag>
-        <Tag color="green">{formatCurrency(price)}</Tag>
-        <Tag>{discount}&darr;</Tag>
-      </div>
-    </div>
-  );
 }
 
 /* ---------------- Animated list for {key, value} arrays ---------------- */
