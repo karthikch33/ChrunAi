@@ -180,7 +180,6 @@ const renderPercentLabel = ({
 
   const columns = [
     { title: "Customer No", dataIndex: "customer" },
-    { title: "Company Code", dataIndex: "company_code" },
     {
       title: "Cluster",
       dataIndex: "cluster_name",
